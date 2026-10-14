@@ -1,0 +1,437 @@
+# Flower-surprise-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Delivery For You 🌸</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f0c1b 0%, #1a1225 50%, #291629 100%);
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 182, 193, 0.15);
+            --text-main: #fcf6f9;
+            --text-muted: #d8b4c2;
+            --accent-pink: #ff6584;
+            --accent-glow: rgba(255, 101, 132, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        /* Floating background sparkles */
+        .sparkles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .sparkle {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: floatSparkle 4s ease-in-out infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes floatSparkle {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.2; }
+            50% { transform: translateY(-20px) scale(1.3); opacity: 0.7; }
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 380px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Initial State: Closed Envelope / Gift Box */
+        .initial-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .gift-icon {
+            font-size: 64px;
+            animation: bounceGift 2s ease-in-out infinite;
+            filter: drop-shadow(0 8px 16px var(--accent-glow));
+        }
+
+        @keyframes bounceGift {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        .initial-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--text-main);
+            letter-spacing: 0.5px;
+        }
+
+        .initial-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 300;
+            line-height: 1.5;
+        }
+
+        .bloom-btn {
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px var(--accent-glow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .bloom-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Flower Garden / Bouquet View */
+        .flower-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .flower-view.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* CSS Bouquet Animation Stage */
+        .bouquet-stage {
+            position: relative;
+            width: 200px;
+            height: 220px;
+            margin: 10px auto 20px auto;
+        }
+
+        /* Individual Flower Styling */
+        .flower {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform-origin: bottom center;
+            transform: translateX(-50%) scale(0);
+            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .flower-view.active .flower {
+            transform: translateX(-50%) scale(1);
+        }
+
+        .flower.center { z-index: 3; transition-delay: 0.2s; }
+        .flower.left { transform: translateX(-110%) rotate(-18deg) scale(0); z-index: 2; transition-delay: 0.4s; }
+        .flower-view.active .flower.left { transform: translateX(-110%) rotate(-18deg) scale(0.9); }
+        .flower.right { transform: translateX(10%) rotate(18deg) scale(0); z-index: 2; transition-delay: 0.6s; }
+        .flower-view.active .flower.right { transform: translateX(10%) rotate(18deg) scale(0.9); }
+
+        /* Flower Head & Petals */
+        .flower-head {
+            position: relative;
+            width: 70px;
+            height: 70px;
+        }
+
+        .petal {
+            position: absolute;
+            width: 28px;
+            height: 42px;
+            background: linear-gradient(to top, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            top: 14px;
+            left: 21px;
+            transform-origin: bottom center;
+            box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.6);
+        }
+
+        /* Vary petal tones for depth */
+        .flower.left .petal { background: linear-gradient(to top, #ff758c 0%, #ff7eb3 100%); }
+        .flower.right .petal { background: linear-gradient(to top, #ff9a9e 0%, #fad0c4 100%); }
+
+        .petal:nth-child(1) { transform: rotate(0deg); }
+        .petal:nth-child(2) { transform: rotate(45deg); }
+        .petal:nth-child(3) { transform: rotate(90deg); }
+        .petal:nth-child(4) { transform: rotate(135deg); }
+        .petal:nth-child(5) { transform: rotate(180deg); }
+        .petal:nth-child(6) { transform: rotate(225deg); }
+        .petal:nth-child(7) { transform: rotate(270deg); }
+        .petal:nth-child(8) { transform: rotate(315deg); }
+
+        .flower-center {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: radial-gradient(circle, #ffeb3b 0%, #fbc02d 100%);
+            border-radius: 50%;
+            top: 22px;
+            left: 22px;
+            z-index: 4;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        /* Stem & Leaves */
+        .stem {
+            position: absolute;
+            width: 5px;
+            height: 110px;
+            background: linear-gradient(to bottom, #81c784, #388e3c);
+            top: 55px;
+            left: 32.5px;
+            border-radius: 3px;
+            z-index: 1;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 22px;
+            height: 12px;
+            background: #66bb6a;
+            border-radius: 0 100% 0 100%;
+            z-index: 1;
+        }
+
+        .leaf.l1 { top: 75px; left: 14px; transform: rotate(-35deg); }
+        .leaf.l2 { top: 95px; left: 34px; transform: rotate(35deg) scaleX(-1); }
+
+        /* Ribbon & Wrapper */
+        .wrapper-cone {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 90px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+            border: 1px solid rgba(255,255,255,0.2);
+            clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+            z-index: 5;
+            backdrop-filter: blur(4px);
+        }
+
+        .ribbon-bow {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            z-index: 6;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        /* Message Box */
+        .message-box {
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 182, 193, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            animation: fadeInMessage 1s ease 0.8s forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        @keyframes fadeInMessage {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: #ff9a9e;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .message-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* Floating Hearts on activation */
+        .floating-heart {
+            position: absolute;
+            color: #ff6584;
+            font-size: 18px;
+            animation: floatUpHeart 3s ease-out forwards;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes floatUpHeart {
+            0% { transform: translateY(0) scale(0.6); opacity: 1; }
+            100% { transform: translateY(-120px) scale(1.4); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Sparkles -->
+    <div class="sparkles" id="sparkles"></div>
+
+    <div class="container" id="cardContainer">
+        <!-- Step 1: Initial View -->
+        <div class="initial-view" id="initialView">
+            <div class="gift-icon">💌</div>
+            <h1 class="initial-title">A delivery just for you</h1>
+            <p class="initial-subtitle">Someone special sent you a little something to brighten your day.</p>
+            <button class="bloom-btn" onclick="openBouquet()">Open Flowers 🌸</button>
+        </div>
+
+        <!-- Step 2: Blooming Flower View -->
+        <div class="flower-view" id="flowerView">
+            <div class="bouquet-stage">
+                <!-- Left Flower -->
+                <div class="flower left">
+                    <div class="stem">
+                        <div class="leaf l1"></div>
+                        <div class="leaf l2"></div>
+                    </div>
+                    <div class="flower-head">
+                        <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+                        <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+                        <div class="flower-center"></div>
+                    </div>
+                </div>
+
+                <!-- Right Flower -->
+                <div class="flower right">
+                    <div class="stem">
+                        <div class="leaf l1"></div>
+                        <div class="leaf l2"></div>
+                    </div>
+                    <div class="flower-head">
+                        <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+                        <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+                        <div class="flower-center"></div>
+                    </div>
+                </div>
+
+                <!-- Center Flower -->
+                <div class="flower center">
+                    <div class="stem">
+                        <div class="leaf l1"></div>
+                        <div class="leaf l2"></div>
+                    </div>
+                    <div class="flower-head">
+                        <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+                        <div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+                        <div class="flower-center"></div>
+                    </div>
+                </div>
+
+                <!-- Wrapper & Ribbon -->
+                <div class="wrapper-cone"></div>
+                <div class="ribbon-bow">🎀</div>
+            </div>
+
+            <!-- Sweet Note -->
+            <div class="message-box">
+                <h2 class="message-title">Just for you ✨</h2>
+                <p class="message-text">Even across the distance, you're always on my mind. Hope these flowers bring a big smile to your face today! ❤️</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate random background sparkles
+        const sparklesContainer = document.getElementById('sparkles');
+        for (let i = 0; i < 20; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.classList.add('sparkle');
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.width = (Math.random() * 3 + 2) + 'px';
+            sparkle.style.height = sparkle.style.width;
+            sparkle.style.animationDelay = (Math.random() * 4) + 's';
+            sparklesContainer.appendChild(sparkle);
+        }
+
+        function openBouquet() {
+            const initialView = document.getElementById('initialView');
+            const flowerView = document.getElementById('flowerView');
+
+            // Fade out initial view
+            initialView.style.opacity = '0';
+            initialView.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                initialView.style.display = 'none';
+                flowerView.classList.add('active');
+                createFloatingHearts();
+            }, 300);
+        }
+
+        function createFloatingHearts() {
+            const container = document.getElementById('cardContainer');
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.classList.add('floating-heart');
+                    heart.innerHTML = '❤️';
+                    heart.style.left = (20 + Math.random() * 60) + '%';
+                    heart.style.bottom = '40px';
+                    heart.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+                    container.appendChild(heart);
+                    
+                    setTimeout(() => heart.remove(), 3500);
+                }, i * 200);
+            }
+        }
+    </script>
+</body>
+</html>
